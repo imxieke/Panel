@@ -1,0 +1,41 @@
+#!/bin/bash  
+#  
+# tomcat startup script for the Tomcat server  
+#  
+# chkconfig: 345 80 20  
+# description: start the tomcat deamon  
+#  
+# Source function library  
+. /etc/rc.d/init.d/functions  
+   
+prog=tomcat  
+JAVA_HOME=/www/wdlinux/jdk  
+export JAVA_HOME  
+CATALANA_HOME=/www/wdlinux/tomcat  
+export CATALINA_HOME  
+   
+case "$1" in  
+start)  
+    echo "Starting Tomcat..."  
+    $CATALANA_HOME/bin/startup.sh  
+    ;;  
+   
+stop)  
+    echo "Stopping Tomcat..."  
+    $CATALANA_HOME/bin/shutdown.sh  
+    ;;  
+   
+restart)  
+    echo "Stopping Tomcat..."  
+    $CATALANA_HOME/bin/shutdown.sh  
+    sleep 2  
+    echo  
+    echo "Starting Tomcat..."  
+    $CATALANA_HOME/bin/startup.sh  
+    ;;  
+   
+*)  
+    echo "Usage: $prog {start|stop|restart}"  
+    ;;  
+esac  
+exit 0

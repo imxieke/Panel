@@ -1,0 +1,70 @@
+{
+	"scan": {
+		"status": 444,
+		"ps": "过滤常见扫描测试工具的渗透测试",
+		"open": true,
+		"reqfile": ""
+	},
+	"cc": {
+		"status": 444,
+		"ps": "过虑CC攻击",
+		"increase": false,
+		"limit": 120,
+		"endtime": 300,
+		"open": true,
+		"reqfile": "",
+		"cycle": 60
+	},
+	"logs_path": "/www/wwwlogs/btwaf",
+	"open": true,
+	"reqfile_path": "/www/server/btwaf/html",
+	"retry": 10,
+	"log": true,
+	"cc_automatic": false,
+	"user-agent": {
+		"status": 403,
+		"ps": "通常用于过滤浏览器、蜘蛛及一些自动扫描器",
+		"open": true,
+		"reqfile": "user_agent.html"
+	},
+	"other": {
+		"status": 403,
+		"ps": "其它非通用过滤",
+		"reqfile": "other.html"
+	},
+	"uri_find": [],
+	"cc_retry_cycle": "600",
+	"cc_time": "60",
+	"ua_black": [],
+	"drop_abroad": {
+		"status": 444,
+		"ps": "禁止中国大陆以外的地区访问站点",
+		"open": true,
+		"reqfile": ""
+	},
+	"retry_cycle": 120,
+	"get": {
+		"status": 403,
+		"ps": "过滤uri、uri参数中常见sql注入、xss等攻击",
+		"open": true,
+		"reqfile": "get.html"
+	},
+	"body_character_string": [],
+	"start_time": 0,
+	"cookie": {
+		"status": 403,
+		"ps": "过滤利用Cookie发起的渗透攻击",
+		"open": true,
+		"reqfile": "cookie.html"
+	},
+	"retry_time": 1800,
+	"post": {
+		"status": 403,
+		"ps": "过滤POST参数中常见sql注入、xss等攻击",
+		"open": true,
+		"reqfile": "post.html"
+	},
+	"ua_white": [],
+	"body_regular": [],
+	"log_save": 30
+}

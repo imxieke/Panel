@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Server Panel Install Script
+# Time: 19/jun/2021 Sat
+CUR_DIR=$(dirname $(readlink -f $0))
+
+. ${CUR_DIR}/env.sh
+
+_install()
+{
+	case $2 in
+		nginx )
+			bash ${CUR_DIR}/scripts/nginx.sh $3
+			;;
+		php )
+			bash ${CUR_DIR}/scripts/php.sh $3 $4
+			;;
+		php-exts )
+			bash ${CUR_DIR}/scripts/php.sh exts $3
+			;;
+		mysql )
+			bash ${CUR_DIR}/scripts/mysql.sh $3
+			;;
+		mariadb )
+			bash ${CUR_DIR}/scripts/mariadb.sh $3
+			;;
+		redis )
+			bash ${CUR_DIR}/scripts/redis.sh $3
+			;;
+		memcached )
+			bash ${CUR_DIR}/scripts/memcached.sh $3
+			;;
+		* )
+			echo 'unknown package: ' $2 
+			;;
+	esac
+}
+
+case $1 in
+	install )
+		_install $*
+		;;
+	remove )
+		echo 'Remove'
+		;;
+	*)
+		_usage
+		;;
+esac
