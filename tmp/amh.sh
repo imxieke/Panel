@@ -5,8 +5,8 @@ export PATH
 clear;
 # Logo 	******************************************************************
 CopyrightLogo='
-                                   AMH-7.1                                  
-                            Powered by amh.sh 2006-2023                     
+                                   AMH-7.2                                  
+                            Powered by amh.sh 2006-2025                     
                          https://amh.sh All Rights Reserved                  
                                                                             
 ==========================================================================';
@@ -29,17 +29,17 @@ InstallStatus='';
 ServerLocation='';
 
 # Version
-AMHVersion='amh-7.1';
+AMHVersion='amh-7.2';
 LibiconvVersion='libiconv-1.14';
 NginxVersion='nginx-generic-1.24';
-MysqlVersion='mysql-generic-5.5';
-PhpVersion='php-generic-7.4';
+MysqlVersion='mysql-generic-5.7';
+PhpVersion='php-generic-8.2';
 
 # InstallModel
 if [ "$InstallModel" == 'gcc' ]; then
 	NginxVersion='nginx-1.24';
-	MysqlVersion='mysql-5.5';
-	PhpVersion='php-7.4';
+	MysqlVersion='mysql-5.7';
+	PhpVersion='php-8.2';
 elif echo "$InstallModel" | grep -q ','; then
 	NginxVersion=`echo $InstallModel | awk -F ',' '{print $1}'`;
 	MysqlVersion=`echo $InstallModel | awk -F ',' '{print $2}'`;
@@ -48,8 +48,8 @@ fi;
 
 LANG=zh_CN.UTF-8;
 SysType="x86";
-SysList="Debian12,Debian11,Debian10 / CentOS-Stream9,CentOS-Stream8,CentOS7 / Ubuntu22,Ubuntu20";
-uname -m | egrep -iq 'aarch64|arm' && LibiconvVersion='libiconv-1.16' && SysType="ARM" && SysList="Debian11,Debian10 / CentOS-Stream8,CentOS7 / Ubuntu22,Ubuntu20";
+SysList="Debian12,Debian11,Debian10 / CentOS-Stream9,CentOS-Stream8,CentOS7 / Ubuntu24,Ubuntu22,Ubuntu20";
+uname -m | egrep -iq 'aarch64|arm' && LibiconvVersion='libiconv-1.16' && SysType="ARM" && SysList="Debian12,Debian11,Debian10 / CentOS-Stream9,CentOS-Stream8,CentOS7 / Ubuntu24,Ubuntu22,Ubuntu20";
 
 # Function List	*******************************************************************************
 function CheckSystem()
@@ -100,7 +100,7 @@ function SetPassword()
 
 function ConfirmInstall()
 {
-	notcie='现在安装AMH-7.1吗？确认安装请输入y回车：' && [ "$1" != '' ] && notcie="$1" 
+	notcie='现在安装AMH-7.2吗？确认安装请输入y回车：' && [ "$1" != '' ] && notcie="$1" 
 	read -p "[Notice] ${notcie}" selected
 	[ "$selected" == 'n' ] && exit;
 	if [ "$selected" == 'y' ]; then
@@ -169,13 +169,14 @@ function InstallReady()
 	echo "Start time: ${StartDate}";
 
 	groupadd www;
+	groupadd amh;
 	useradd -m -s /sbin/nologin -g www www;
 
 	mkdir -p /root/amh/{modules,conf};
 	mkdir -p /home/{wwwroot,usrdata};
 	cd /tmp/;
 	AMHConfVersion=${AMHVersion/amh/amh-conf};
-	wget https://dl.amh.sh/file/AMH/7.1/${AMHConfVersion}.tar.gz -O ${AMHConfVersion}.tar.gz;
+	wget https://dl.amh.sh/file/AMH/7.2/${AMHConfVersion}.tar.gz -O ${AMHConfVersion}.tar.gz;
 	tar -zxvf ${AMHConfVersion}.tar.gz;
 	\cp -a ./${AMHConfVersion}/conf /root/amh/;
 	chmod -R 775 /root/amh/conf /root/amh/modules;
@@ -196,6 +197,11 @@ function InstallReady()
 
 function InstallBaseModule()
 {
+	[ "$PV" != '' ] && http_port=`echo $PV | awk -F ',' '{print $1}'` && https_port=`echo $PV | awk -F ',' '{print $2}'`;
+	! [[ "$http_port" =~ ^[0-9]+$ ]] || ! [ "$http_port" -ge 8000  -a "$http_port" -le 61000 ] && http_port=$[8000+RANDOM%53000];
+	! [[ "$https_port" =~ ^[0-9]+$ ]] || ! [ "$https_port" -ge 8000  -a "$https_port" -le 61000 ] && https_port=$[http_port+1];
+	export http_port=$http_port https_port=$https_port;
+
 	amh download ${LibiconvVersion};
 	amh download ${MysqlVersion};
 	amh download ${NginxVersion};
@@ -234,13 +240,13 @@ function InstallEnd()
 			amh download lnmp;
 			amh lnmp install;
 			amh lnmp admin lnmp_create lnmp01 ${NginxVersion} ${MysqlVersion} ${PhpVersion};
-			amh lnmp admin vhost_add lnmp01 ${IPAddress} ${WebSitePort} ${WebSiteIP} 0 0 400,403,404,502;
+			amh lnmp admin vhost_add lnmp01 ${IPAddress} ${WebSitePort} ${WebSiteIP} 0 amh.conf 400,403,404,502;
 			sql="INSERT INTO amh.amh_module_lnmp(lnmp_name, lnmp_nginx, lnmp_mysql, lnmp_php, lnmp_rewrite) VALUES ('lnmp01', '${NginxVersion}', '${MysqlVersion}', '${PhpVersion}', 'amh.conf')";
 		else
 			amh download lamp;
 			amh lamp install;
 			amh lamp admin lamp_create lamp01 ${NginxVersion} ${MysqlVersion} ${PhpVersion};
-			amh lamp admin vhost_add lamp01 ${IPAddress} ${WebSitePort} ${WebSiteIP} 0 0 400,403,404,502;
+			amh lamp admin vhost_add lamp01 ${IPAddress} ${WebSitePort} ${WebSiteIP} 0 amh.conf 400,403,404,502;
 			sql="INSERT INTO amh.amh_module_lamp(lamp_name, lamp_apache, lamp_mysql, lamp_php, lamp_rewrite) VALUES ('lamp01', '${NginxVersion}', '${MysqlVersion}', '${PhpVersion}', 'amh.conf')";
 		fi;
 		export MYSQL_PWD=$DefaultPassword;
@@ -248,7 +254,7 @@ function InstallEnd()
 
 
 		if [ "$DV" != 'N' ]; then
-			DefaultInstall=(amrewrite madmin amfile amftp pure-ftpd amdata amnetwork amcrontab d-ram d-os d-cpu d-disk d-net);
+			DefaultInstall=(amrewrite amssl madmin amfile amftp pure-ftpd amdata amnetwork amcrontab d-ram d-os d-cpu d-disk d-net);
 			[ "$DV" != '' ] && IFS="," read -ra DefaultInstall <<< $DV;
 			for line in "${DefaultInstall[@]}"; do
 				amh download $line;
@@ -266,10 +272,10 @@ function InstallEnd()
 
 		echo 'all' >/usr/local/${AMHVersion}/etc/upstatus.conf;
 		echo '==========================================================================';
-		echo '[AMH] 恭喜您! AMH 7.1 安装成功。';
-		echo -e "访问以下地址管理面板（\033[31m如访问受限，请在主机商安全组开放面板端口如：8888\033[0m ）";
-		echo "http://${WebSiteIP}:8888";
-		echo "https://${WebSiteIP}:9999";
+		echo '[AMH] 恭喜您! AMH 7.2 安装成功。';
+		echo -e "访问以下地址管理面板（\033[31m如访问受限，请在主机商安全组开放面板端口如：${http_port}\033[0m ）";
+		echo "http://${WebSiteIP}:${http_port}";
+		echo "https://${WebSiteIP}:${https_port}";
 		echo 'AMH 用户名: admin';
 		echo -e "AMH 密码: \033[36m${DefaultPassword}\033[0m ";
 		echo "MySQL 用户名: root";

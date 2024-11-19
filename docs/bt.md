@@ -10,6 +10,14 @@
 - http://103.179.243.14
 - http://36.133.1.8:5880
 - http://45.76.53.20/
+- https://dg2.bt.cn
+- https://download.bt.cn
+- https://ctcc1-node.bt.cn
+- https://cmcc1-node.bt.cn
+- https://ctcc2-node.bt.cn
+- https://hk1-node.bt.cn
+- https://na1-node.bt.cn
+- https://jp1-node.bt.cn
 
 $download_Url/tools/fix_install.sh
 

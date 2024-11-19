@@ -7,11 +7,13 @@
 # @Description: Compile Install libiconv
 ###
 
-wget -c https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz -O /tmp/libiconv-1.17.tar.gz
+VERSION='1.17'
+
+wget -c https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${VERSION}.tar.gz -O /tmp/libiconv-${VERSION}.tar.gz
 
 mkdir -p /build/src
-tar -xvf /tmp/libiconv-1.17.tar.gz -C /tmp/src
-cd libiconv-1.17 || exit 1
+tar -xvf /tmp/libiconv-${VERSION}.tar.gz -C /tmp/src
+cd libiconv-${VERSION} || exit 1
 ./configure --prefix=/usr
 make -j8
 make install
